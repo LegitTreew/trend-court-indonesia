@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The El Niño Alibi: Trend Court for Indonesia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..900;1,62..125,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<style>
+:root {
+  --paper: #e6ebef;      /* government-form blue-grey */
+  --sheet: #ffffff;
+  --sheet-2: #f3f5f7;
+  --rule: #c9d1d8;
+  --ink: #13233a;        /* navy ink */
+  --ink-2: #44546a;
+  --ink-3: #536175;
+  --red: #c8102e;        /* stamp red: guilty */
+  --amber: #e8a317;      /* not proven */
+  --ocean: #1f6fb2;      /* acquitted: the Pacific did it */
+  --raw: #2a78d6;
+  --adj: #eb6834;
+  --nino: #c8102e;
+  --nina: #1f6fb2;
+  --insig: #c9d1d8;
+  --font: "Archivo", "Arial Narrow", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body { margin: 0; color: var(--ink); font: 400 16px/1.55 var(--font); font-stretch: 100%; }
+.page { max-width: 1320px; margin: 0 auto; padding: 0 28px 56px; }
+a { color: var(--ocean); }
+:focus-visible { outline: 3px solid var(--ocean); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- hero ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 40px; align-items: end;
+  padding: 44px 0 28px; border-bottom: 3px solid var(--ink); }
+.hero h1 { margin: 0; font-size: clamp(44px, 6.4vw, 92px); line-height: .9; font-weight: 850; font-stretch: 68%;
+  letter-spacing: -.01em; }
+.hero .sub { margin: 18px 0 0; max-width: 34em; font-size: 18px; color: var(--ink-2); }
+.hero .sub b { color: var(--ink); font-weight: 650; }
+.hero > * { min-width: 0; }
+.ask label { display: block; font-weight: 650; font-size: 15px; margin-bottom: 8px; }
+.ask form { display: flex; border: 2px solid var(--ink); background: var(--sheet); }
+.ask input { flex: 1; min-width: 0; width: 100%; border: 0; background: transparent; font: 400 17px var(--font); color: var(--ink); padding: 13px 14px; }
+.ask input:focus-visible { outline: none; }
+.ask form:focus-within { outline: 3px solid var(--ocean); outline-offset: 2px; }
+.ask button[type=submit] { border: 0; background: var(--ink); color: #fff; font: 700 16px var(--font); font-stretch: 85%; padding: 0 20px; min-height: 48px; cursor: pointer; }
+.ask .tries { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ask .tries button { border: 1px solid var(--rule); background: var(--sheet); color: var(--ink-2); border-radius: 999px;
+  font: 400 14px var(--font); padding: 0 14px; min-height: 44px; cursor: pointer; transition: border-color .15s, color .15s; }
+.ask .tries button:hover { border-color: var(--ink); color: var(--ink); }
+.ask .out { min-height: 22px; margin-top: 8px; font-size: 14px; color: var(--ink-2); }
+
+/* ---------- verdict wall ---------- */
+.wall { padding: 30px 0 8px; }
+.wall-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px 28px; margin-bottom: 14px; }
+h2 { margin: 0; font-size: 30px; line-height: 1.05; font-weight: 800; font-stretch: 75%; }
+.wall-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 15px; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; }
+.key span { display: inline-flex; align-items: center; gap: 7px; }
+.key i { width: 16px; height: 16px; display: inline-block; }
+.scroll { overflow-x: auto; }
+table.docket { border-collapse: separate; border-spacing: 4px; width: 100%; min-width: 980px; table-layout: fixed; }
+.docket thead th { font-size: 13px; font-weight: 650; font-stretch: 85%; text-align: left; vertical-align: bottom; padding: 0 2px 4px; line-height: 1.15; }
+.docket thead th.west, .docket thead th.east { font-weight: 400; color: var(--ink-3); }
+.docket th.charge { width: 168px; text-align: left; font-weight: 600; font-size: 14px; line-height: 1.2; padding-right: 8px; }
+.docket td { padding: 0; }
+.tile { position: relative; width: 100%; height: 58px; border: 0; cursor: pointer; display: flex; flex-direction: column; justify-content: center;
+  align-items: flex-start; padding: 0 8px; text-align: left; transition: box-shadow .15s; font: 700 13px/1.1 var(--font); font-stretch: 85%; }
+.tile .s { font-size: 12px; font-weight: 400; opacity: .92; margin-top: 3px; white-space: nowrap; }
+.tile .star { position: absolute; top: 4px; right: 6px; font-size: 13px; }
+.t-GUILTY { background: var(--red); color: #fff; }
+.t-NOTPROVEN { background: var(--amber); color: var(--ink); }
+.t-ACQUITTED { background: var(--ocean); color: #fff; }
+.t-NOCASE { background: var(--sheet); color: var(--ink-3); font-weight: 400; }
+.t-NA { background: transparent; border: 1px dashed var(--rule); color: var(--ink-3); cursor: default; font-weight: 400; }
+.tile:hover:not(.t-NA) { box-shadow: inset 0 0 0 2px var(--ink); }
+.tile.sel { box-shadow: inset 0 0 0 4px var(--ink); }
+.t-GUILTY.sel, .t-ACQUITTED.sel { box-shadow: inset 0 0 0 4px var(--ink), inset 0 0 0 6px #fff; }
+.wall-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13.5px; color: var(--ink-3); margin-top: 6px; }
+
+/* ---------- case file ---------- */
+.case { margin-top: 28px; background: var(--sheet); border-top: 10px solid var(--ink); padding: 30px 32px 34px;
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; scroll-margin-top: 16px; }
+.case-no { font-size: 14px; color: var(--ink-3); font-stretch: 85%; }
+.case h3 { margin: 4px 0 6px; font-size: 40px; line-height: .98; font-weight: 850; font-stretch: 70%; }
+.case h3 span { display: block; font-weight: 500; font-stretch: 85%; font-size: 24px; color: var(--ink-2); margin-top: 6px; }
+.where { font-size: 14px; color: var(--ink-3); }
+.stamp-row { margin: 22px 0 18px; display: flex; gap: 20px; align-items: center; }
+.stamp { flex: none; transform: rotate(-6deg); border: 5px double currentColor; padding: 8px 16px 6px; font: 900 34px/1 var(--font);
+  font-stretch: 62%; text-transform: uppercase; letter-spacing: .04em; mix-blend-mode: multiply; }
+.stamp.GUILTY { color: var(--red); } .stamp.NOTPROVEN { color: #8a5f00; } .stamp.ACQUITTED { color: var(--ocean); } .stamp.NOCASE { color: var(--ink-3); }
+.stamp-row p { margin: 0; font-size: 15px; color: var(--ink-2); }
+.stamp-row p b { color: var(--ink); }
+.ruling { font-size: 20px; line-height: 1.45; margin: 0 0 14px; }
+.hidden-note { border-left: 5px solid var(--red); background: var(--sheet-2); padding: 9px 13px; font-size: 15px; margin-bottom: 18px; }
+.alibis { list-style: none; counter-reset: a; margin: 0; padding: 0; border-top: 2px solid var(--ink); }
+.alibis li { counter-increment: a; display: grid; grid-template-columns: 40px 1fr; gap: 0 12px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.alibis li::before { content: counter(a); font: 850 34px/1 var(--font); font-stretch: 62%; color: var(--ink-3); }
+.alibis li.extra::before { content: "+"; }
+.alibis .claim { font-weight: 700; font-size: 16px; }
+.alibis .res { font-weight: 700; font-size: 14px; margin-left: 6px; }
+.alibis .res.broken { color: var(--red); }
+.alibis .res.holds { color: var(--ink-3); }
+.alibis .why { grid-column: 2; font-size: 14.5px; color: var(--ink-2); margin-top: 3px; }
+#map { height: 190px; margin-top: 20px; background: var(--sheet-2); }
+#map .leaflet-tile-pane { filter: grayscale(1) contrast(.95); }
+.map-cap { font-size: 13px; color: var(--ink-3); margin-top: 6px; }
+
+.ev + .ev { margin-top: 26px; }
+.ev h4 { margin: 0; font-size: 18px; font-weight: 750; font-stretch: 80%; }
+.ev .sub { margin: 2px 0 8px; font-size: 14px; color: var(--ink-2); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13.5px; color: var(--ink-2); margin-bottom: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 16px; height: 3px; display: inline-block; }
+.sw.box { width: 11px; height: 11px; }
+.sw.dash { height: 0; border-top: 2px dashed var(--ink-2); }
+.cv { position: relative; height: 250px; }
+.cv.short { height: 150px; }
+details { margin-top: 20px; font-size: 14px; }
+summary { cursor: pointer; font-weight: 600; }
+.tw { max-height: 280px; overflow: auto; margin-top: 8px; border: 1px solid var(--rule); }
+table.data { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+table.data th, table.data td { padding: 4px 10px; text-align: right; border-bottom: 1px solid var(--sheet-2); }
+table.data th { position: sticky; top: 0; background: var(--sheet-2); font-weight: 650; }
+
+/* ---------- method ---------- */
+.method { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin-top: 40px; padding-top: 18px; border-top: 3px solid var(--ink); font-size: 14.5px; color: var(--ink-2); }
+.method h5 { margin: 0 0 6px; font-size: 17px; color: var(--ink); font-weight: 750; font-stretch: 80%; }
+.method ul { margin: 0; padding-left: 18px; }
+.method li + li { margin-top: 4px; }
+code { font: 13px ui-monospace, Menlo, Consolas, monospace; background: var(--sheet); padding: 1px 4px; }
+.empty-state { background: var(--sheet); padding: 40px; margin-top: 30px; font-size: 18px; }
+
+@media (max-width: 960px) {
+  .hero, .case, .method { grid-template-columns: 1fr; }
+  .case { padding: 22px 18px; gap: 26px; }
+  .page { padding: 0 16px 40px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <div>
+      <h1>Is Indonesia changing, or is it just El Niño?</h1>
+      <p class="sub">The El Niño Alibi puts every trend in 45 years of NASA data on trial: <b>6 charges in 14 cities</b>,
+        from Banda Aceh to Jayapura. A trend is convicted only if it survives three alibis.</p>
+    </div>
+    <div class="ask">
+      <label for="askIn">Ask the court</label>
+      <form id="askForm" role="search">
+        <input id="askIn" type="search" autocomplete="off" placeholder="Is Jakarta getting hotter?">
+        <button type="submit">Open case</button>
+      </form>
+      <div class="tries" id="tries">
+        <button type="button">Is Jakarta getting hotter?</button>
+        <button type="button">Droughts in Kupang?</button>
+        <button type="button">Musim hujan di Makassar makin telat?</button>
+        <button type="button">Heatwaves in Bali</button>
+      </div>
+      <div class="out" id="askOut" aria-live="polite"></div>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <section class="method">
+    <div>
+      <h5>The three alibis</h5>
+      <ul>
+        <li><b>Noise:</b> modified Mann-Kendall test that corrects for year-to-year memory (Hamed &amp; Rao, 1998).</li>
+        <li><b>El Niño:</b> fit <code>y = a + b·year + c·ONI</code> and subtract only <code>c·ONI</code>, then test again.</li>
+        <li><b>Cherry-picking:</b> repeat the test for every start year. A real trend keeps its direction and stays significant for at least 70% of them.</li>
+      </ul>
+    </div>
+    <div>
+      <h5>Data</h5>
+      <ul id="sources"></ul>
+      <p style="margin:8px 0 0">Each city's dry season is its own driest 4 months (1981–2010). Rainy-season start uses the BMKG rule:
+        the first 10-day period with at least 50 mm, followed by two more.</p>
+    </div>
+    <div>
+      <h5>What the court can't tell you</h5>
+      <ul>
+        <li>NASA POWER values are averages over about 50 km, not rain-gauge readings.</li>
+        <li>El Niño is removed as a straight-line, same-season effect. The Indian Ocean Dipole is not removed yet.</li>
+        <li>"Guilty" means the change is statistically real. It doesn't say what caused it.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script src="vendor/chart.umd.min.js"></script>
+<script src="vendor/leaflet.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  "use strict";
+  const D = window.TREND_COURT;
+  const app = document.getElementById("app");
+  if (!D) {
+    app.innerHTML = '<div class="empty-state"><b>No results yet.</b> Run <code>python3 trend_court.py</code> (Windows: <code>py trend_court.py</code>) in this folder, then reload this page.</div>';
+    return;
+  }
+
+  const ALPHA = D.settings.alpha;
+  const VERDICT = {
+    "GUILTY":     { cls: "GUILTY",    label: "Guilty",     short: "Real trend" },
+    "NOT PROVEN": { cls: "NOTPROVEN", label: "Not proven", short: "Depends on start year" },
+    "ACQUITTED":  { cls: "ACQUITTED", label: "Acquitted",  short: "El Niño did it" },
+    "NO CASE":    { cls: "NOCASE",    label: "No case",    short: "No real trend" },
+  };
+  const VAR_KEYS = Object.keys(D.vars);
+  const SITES = D.sites.slice().sort((a, b) => a.lon - b.lon);   // west to east
+  const siteById = Object.fromEntries(D.sites.map((s) => [s.id, s]));
+  const caseOf = (s, v) => D.cases[s + "|" + v];
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const fmt = (v, d) => (v == null || isNaN(v)) ? "–" : Number(v).toFixed(d);
+  const pEq = (p) => p < 0.001 ? "p < 0.001" : "p = " + p.toFixed(3);
+  const signed = (v, d) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Number(v)).toFixed(d);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const nCases = Object.keys(D.cases).length;
+
+  function featured() {
+    const ks = Object.keys(D.cases);
+    const best = (f) => ks.filter(f).sort((a, b) => D.cases[a].adj_test.p - D.cases[b].adj_test.p)[0];
+    const pick = best((k) => D.cases[k].verdict === "GUILTY" && D.cases[k].unmasked)
+      || best((k) => D.cases[k].verdict === "ACQUITTED")
+      || best((k) => D.cases[k].verdict === "GUILTY" && !/\|(t2m|hot_days)$/.test(k)) || ks[0];
+    const [site, v] = pick.split("|");
+    return { site, v };
+  }
+  const state = (() => {
+    const h = decodeURIComponent(location.hash.slice(1)).split("|");
+    return (h.length === 2 && caseOf(h[0], h[1])) ? { site: h[0], v: h[1] } : featured();
+  })();
+
+  // ---------- page skeleton ----------
+  const count = (k) => D.tally[k] || 0;
+  app.innerHTML = `
+    <section class="wall" aria-labelledby="wallTitle">
+      <div class="wall-head">
+        <div>
+          <h2 id="wallTitle">${count("GUILTY")} of ${nCases} trends convicted</h2>
+          <p>${count("ACQUITTED")} acquitted because El Niño explains them, ${count("NOT PROVEN")} not proven, ${count("NO CASE")} with no real trend. Pick any square to open its case.</p>
+        </div>
+        <div class="key" aria-label="Verdict key">
+          <span><i class="t-GUILTY"></i>Guilty: real trend</span>
+          <span><i class="t-NOTPROVEN"></i>Not proven</span>
+          <span><i class="t-ACQUITTED"></i>Acquitted: El Niño did it</span>
+          <span><i class="t-NOCASE" style="outline:1px solid var(--rule)"></i>No case</span>
+          <span>★ Trend El Niño was hiding</span>
+        </div>
+      </div>
+      <div class="scroll"><table class="docket" id="docket"></table></div>
+      <div class="wall-foot"><span>Cities run west to east. Numbers are the change per decade, with El Niño removed.</span><span>NASA POWER, ${D.period[0]}–${D.period[1]}</span></div>
+    </section>
+    <article class="case" id="case" aria-live="polite"></article>`;
+
+  document.getElementById("sources").innerHTML = D.sources.map((s) =>
+    `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></li>`).join("");
+
+  // ---------- verdict wall ----------
+  function renderWall() {
+    let h = `<thead><tr><th class="charge"></th>${SITES.map((s) => `<th scope="col">${esc(s.name)}</th>`).join("")}</tr></thead><tbody>`;
+    for (const v of VAR_KEYS) {
+      h += `<tr><th class="charge" scope="row">${esc(D.vars[v].short || D.vars[v].name)}</th>`;
+      for (const s of SITES) {
+        const c = caseOf(s.id, v);
+        if (!c) {
+          h += `<td><button class="tile t-NA" disabled title="${v === "onset" ? "Rains all year, so there is no rainy-season start" : "Not enough data"}">n/a</button></td>`;
+          continue;
+        }
+        const m = VERDICT[c.verdict], sel = s.id === state.site && v === state.v ? " sel" : "";
+        const dd = Math.max(0, D.vars[v].digits - 1);
+        const slope = c.verdict === "NO CASE" ? "" : `<span class="s">${signed(c.adj_test.slope * 10, dd)} ${esc(D.vars[v].unit)}</span>`;
+        h += `<td><button class="tile t-${m.cls}${sel}" data-s="${s.id}" data-v="${v}" aria-label="${esc(s.name)}, ${esc(D.vars[v].name)}: ${m.label}">
+          ${c.unmasked ? '<span class="star" aria-hidden="true">★</span>' : ""}<span>${m.label}</span>${slope}</button></td>`;
+      }
+      h += "</tr>";
+    }
+    const t = document.getElementById("docket");
+    t.innerHTML = h + "</tbody>";
+    t.querySelectorAll("button[data-s]").forEach((b) => b.addEventListener("click", () => { go(b.dataset.s, b.dataset.v); scrollToCase(); }));
+  }
+  function scrollToCase() {
+    const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById("case").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
+  // ---------- ask the court (English + Bahasa Indonesia) ----------
+  const VAR_WORDS = {
+    rain_annual: ["rain", "rainfall", "precipitation", "wet", "wetter", "flood", "floods", "flooding", "hujan", "curah hujan", "banjir", "basah"],
+    rain_dry: ["dry season", "dry-season", "drier", "kemarau", "musim kemarau", "musim kering"],
+    dry_spell: ["drought", "droughts", "dry spell", "dry spells", "no rain", "water shortage", "kekeringan", "kering", "krisis air", "tidak hujan"],
+    onset: ["rainy season", "monsoon", "onset", "planting", "farmer", "farmers", "late rain", "musim hujan", "awal musim hujan", "tanam", "musim tanam", "petani", "telat", "terlambat"],
+    t2m: ["warming", "warmer", "hotter", "temperature", "climate change", "global warming", "suhu", "pemanasan", "perubahan iklim", "makin panas"],
+    hot_days: ["heatwave", "heatwaves", "heat wave", "heat waves", "hot days", "extreme heat", "heat", "gelombang panas", "hari panas", "panas ekstrem"],
+  };
+  const PLACE_WORDS = {
+    "banda-aceh": ["banda aceh", "aceh"], medan: ["medan", "sumatra utara", "north sumatra", "sumut"],
+    padang: ["padang", "west sumatra", "sumatra barat", "sumbar"], palembang: ["palembang", "south sumatra", "sumatra selatan", "sumsel"],
+    jakarta: ["jakarta", "dki", "batavia"], surabaya: ["surabaya", "east java", "jawa timur", "jatim"],
+    denpasar: ["denpasar", "bali"], kupang: ["kupang", "ntt", "nusa tenggara", "timor"],
+    pontianak: ["pontianak", "west kalimantan", "kalimantan barat", "kalbar"], balikpapan: ["balikpapan", "east kalimantan", "kalimantan timur", "kaltim", "ikn", "nusantara"],
+    makassar: ["makassar", "south sulawesi", "sulawesi selatan", "sulsel"], manado: ["manado", "north sulawesi", "sulawesi utara", "sulut"],
+    ambon: ["ambon", "maluku", "moluccas"], jayapura: ["jayapura", "papua"],
+  };
+  function bestOf(text, dict) {
+    let best = null, top = 0;
+    for (const [k, words] of Object.entries(dict)) {
+      let sc = 0;
+      for (const w of words) if (text.includes(" " + w + " ")) sc = Math.max(sc, w.split(" ").length);
+      if (sc > top) { top = sc; best = k; }
+    }
+    return best;
+  }
+  function ask(q) {
+    const out = document.getElementById("askOut");
+    const text = " " + q.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").replace(/\s+/g, " ").trim() + " ";
+    let v = bestOf(text, VAR_WORDS), site = bestOf(text, PLACE_WORDS);
+    if (!v && !site) {
+      out.innerHTML = "The court didn't recognise that. Use a word like <b>drought</b>, <b>heatwave</b>, <b>rainy season</b> or <b>kekeringan</b>, plus a city or island.";
+      return;
+    }
+    if (v === "onset" && site && !caseOf(site, v)) v = "rain_dry";
+    if (!v) v = state.v;
+    if (!site) {
+      const order = { "GUILTY": 0, "ACQUITTED": 1, "NOT PROVEN": 2, "NO CASE": 3 };
+      site = SITES.map((s) => s.id).filter((id) => caseOf(id, v))
+        .sort((a, b) => (order[caseOf(a, v).verdict] - order[caseOf(b, v).verdict]) || (caseOf(a, v).adj_test.p - caseOf(b, v).adj_test.p))[0];
+    }
+    if (!caseOf(site, v)) { out.textContent = `There is no case for that in ${siteById[site].name}: not enough data, or it rains all year.`; return; }
+    out.innerHTML = `Opened <b>${esc(D.vars[v].name)}</b> in <b>${esc(siteById[site].name)}</b>.`;
+    go(site, v);
+    scrollToCase();
+  }
+  document.getElementById("askForm").addEventListener("submit", (e) => { e.preventDefault(); ask(document.getElementById("askIn").value); });
+  document.querySelectorAll("#tries button").forEach((b) => b.addEventListener("click", () => {
+    document.getElementById("askIn").value = b.textContent; ask(b.textContent);
+  }));
+
+  // ---------- case file ----------
+  const charts = {};
+  let map = null, marker = null;
+
+  function renderCase() {
+    const el = document.getElementById("case");
+    const c = caseOf(state.site, state.v), s = siteById[state.site], meta = D.vars[state.v], d = meta.digits;
+    Object.values(charts).forEach((ch) => ch.destroy());
+    if (map) { map.remove(); map = null; }
+    const m = VERDICT[c.verdict], r = c.raw_test, a = c.adj_test;
+    const win = c.windows, ensoShare = Math.round(c.enso_r * c.enso_r * 100);
+    const fdrOk = c.q != null && c.q < ALPHA;
+    const res = (ok) => ok ? `<span class="res broken">Alibi broken</span>` : `<span class="res holds">Alibi holds</span>`;
+
+    el.innerHTML = `
+      <div>
+        <div class="case-no">Case ${D.period[1]}/${String(Object.keys(D.cases).indexOf(state.site + "|" + state.v) + 1).padStart(2, "0")}</div>
+        <h3>${esc(s.name)} v. ${esc(meta.short || meta.name)}<span>${esc(meta.name)}</span></h3>
+        <div class="where">${esc(s.note)}. Dry season ${esc(s.dry_season)}. ${c.years[0]}–${c.years[c.years.length - 1]}, ${c.years.length} years.</div>
+        <div class="stamp-row">
+          <div class="stamp ${m.cls}" role="img" aria-label="Verdict: ${m.label}">${m.label}</div>
+          <p><b>${m.short}.</b><br>${signed(a.slope * 10, d)} ${esc(meta.unit)} per decade after removing El Niño.</p>
+        </div>
+        <p class="ruling">${esc(c.text)}</p>
+        ${c.unmasked ? `<div class="hidden-note">★ ${c.verdict === "GUILTY" ? "Hidden trend" : "Possible hidden trend"}: flat in the raw data, it shows up once El Niño is removed.</div>` : ""}
+        <ol class="alibis">
+          <li><div><span class="claim">"It's just random ups and downs."</span>${res(r.p < ALPHA)}</div>
+            <div class="why">Raw record: ${signed(r.slope * 10, d)} ${esc(meta.unit)} per decade, ${pEq(r.p)} after correcting for year-to-year memory (uncorrected: ${pEq(r.p_plain)}).</div></li>
+          <li><div><span class="claim">"El Niño did it."</span>${res(a.p < ALPHA)}</div>
+            <div class="why">El Niño and La Niña explain ${ensoShare}% of the year-to-year swings (${esc(c.enso_label)}). With them removed: ${signed(a.slope * 10, d)} ${esc(meta.unit)} per decade, ${pEq(a.p)}.</div></li>
+          <li><div><span class="claim">"You picked a convenient start year."</span>${res(c.robust)}</div>
+            <div class="why">Tried ${win.length} start years${win.length ? ` (${win[0].start}–${win[win.length - 1].start})` : ""}. The trend ${c.same_sign ? "always points the same way" : "changes direction"} and is significant for ${Math.round(c.sig_share * 100)}% of them. The court needs ${Math.round(D.settings.robust_share * 100)}%.</div></li>
+          <li class="extra"><div><span class="claim">"With ${nCases} trials, some hits are luck."</span>
+            <span class="res ${fdrOk ? "broken" : "holds"}">${fdrOk ? "Still significant" : "Could be luck"}</span></div>
+            <div class="why">False discovery rate across all trials: ${c.q != null ? (c.q < 0.001 ? "q < 0.001" : "q = " + c.q.toFixed(3)) : "–"}.</div></li>
+        </ol>
+        <div id="map" aria-hidden="true"></div>
+        <div class="map-cap">${esc(s.name)}, ${s.lat}°, ${s.lon}°</div>
+      </div>
+      <div>
+        <section class="ev">
+          <h4>Exhibit A: the record</h4>
+          <p class="sub">${esc(meta.name)} each year${c.unit_note ? ", " + esc(c.unit_note) : ""}. Dashed lines show each trend (Sen's slope).</p>
+          <div class="legend">
+            <span><svg width="22" height="10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--raw)" stroke-width="1.5"/><circle cx="11" cy="5" r="3.5" fill="var(--raw)" stroke="#fff"/></svg>NASA data as measured (circles)</span>
+            <span><svg width="22" height="10" aria-hidden="true"><line x1="0" y1="5" x2="22" y2="5" stroke="var(--adj)" stroke-width="2.5"/><rect x="7.5" y="1.5" width="7" height="7" transform="rotate(45 11 5)" fill="var(--adj)" stroke="#fff"/></svg>With El Niño removed (diamonds)</span>
+            <span><i class="sw dash"></i>Trend</span>
+          </div>
+          <div class="cv"><canvas id="cA" role="img" aria-label="${esc(meta.name)} by year, raw and with El Niño removed"></canvas></div>
+        </section>
+        <section class="ev">
+          <h4>Exhibit B: the suspect</h4>
+          <p class="sub">The Oceanic Niño Index for ${esc(c.enso_label.replace(" ONI", ""))} each year. Above zero is El Niño, below is La Niña.</p>
+          <div class="legend">
+            <span><i class="sw box" style="background:var(--nino)"></i>El Niño side</span>
+            <span><i class="sw box" style="background:var(--nina)"></i>La Niña side</span>
+          </div>
+          <div class="cv short"><canvas id="cB" role="img" aria-label="El Niño index by year"></canvas></div>
+        </section>
+        <section class="ev">
+          <h4>Exhibit C: every possible start year</h4>
+          <p class="sub">The trend per decade if the record began in that year. A real trend stays on one side of zero.</p>
+          <div class="legend">
+            <span><i class="sw box" style="background:var(--adj)"></i>Significant</span>
+            <span><i class="sw box" style="background:transparent;outline:1.5px dashed var(--ink-3);outline-offset:-1.5px"></i>Not significant (outline only)</span>
+          </div>
+          <div class="cv short"><canvas id="cC" role="img" aria-label="Trend for each start year"></canvas></div>
+        </section>
+        <details>
+          <summary>See the numbers</summary>
+          <div class="tw"><table class="data">
+            <thead><tr><th>Year</th><th>Measured (${esc(meta.unit)})</th><th>El Niño removed</th><th>ONI</th></tr></thead>
+            <tbody>${c.years.map((y, i) => `<tr><td>${y}</td><td>${fmt(c.raw[i], d)}</td><td>${fmt(c.adj[i], d)}</td><td>${fmt(c.enso[i], 2)}</td></tr>`).join("")}</tbody>
+          </table></div>
+        </details>
+      </div>`;
+
+    drawCharts(c, meta);
+    drawMap(s);
+  }
+
+  function drawMap(s) {
+    if (!window.L) return;
+    map = L.map("map", { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false,
+      doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
+    map.fitBounds([[-11, 95], [6, 141]]);
+    for (const o of D.sites) {
+      L.circleMarker([o.lat, o.lon], o.id === s.id
+        ? { radius: 9, color: "#fff", weight: 3, fillColor: css("--red"), fillOpacity: 1 }
+        : { radius: 4, color: css("--ink"), weight: 1, fillColor: css("--ink"), fillOpacity: .6 }).addTo(map);
+    }
+  }
+
+  function axes(unit) {
+    const grid = css("--rule"), muted = css("--ink-3");
+    return {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false },
+        tooltip: { backgroundColor: "#fff", titleColor: css("--ink"), bodyColor: css("--ink-2"), borderColor: grid, borderWidth: 1,
+          padding: 10, cornerRadius: 0, titleFont: { family: "Archivo", weight: "700" }, bodyFont: { family: "Archivo" } } },
+      scales: {
+        x: { type: "linear", ticks: { color: muted, font: { family: "Archivo" }, callback: (v) => Number.isInteger(v) ? String(v) : "" },
+          grid: { display: false }, border: { color: css("--ink") } },
+        y: { ticks: { color: muted, font: { family: "Archivo" } }, grid: { color: grid }, border: { display: false },
+          title: { display: !!unit, text: unit, color: muted, font: { family: "Archivo" } } } },
+    };
+  }
+
+  function drawCharts(c, meta) {
+    const d = meta.digits, y0 = c.years[0], y1 = c.years[c.years.length - 1];
+    const raw = css("--raw"), adj = css("--adj");
+    const line = (st) => [{ x: y0, y: st.intercept + st.slope * y0 }, { x: y1, y: st.intercept + st.slope * y1 }];
+
+    const oA = axes(meta.unit);
+    oA.scales.x.min = y0; oA.scales.x.max = y1;
+    oA.plugins.tooltip.filter = (it) => !it.dataset.trend;
+    oA.plugins.tooltip.callbacks = { title: (it) => String(it[0].parsed.x), label: (it) => ` ${it.dataset.label}: ${fmt(it.parsed.y, d)} ${meta.unit}` };
+    const pt = { pointHoverRadius: 6, pointBorderColor: "#fff", pointBorderWidth: 1, tension: 0 };
+    charts.a = new Chart(document.getElementById("cA"), { type: "line", options: oA, data: { datasets: [
+      { label: "As measured", data: c.years.map((y, i) => ({ x: y, y: c.raw[i] })), borderColor: raw, backgroundColor: raw, borderWidth: 1.5, pointRadius: 3, pointStyle: "circle", ...pt },
+      { label: "El Niño removed", data: c.years.map((y, i) => ({ x: y, y: c.adj[i] })), borderColor: adj, backgroundColor: adj, borderWidth: 2.5, pointRadius: 3.5, pointStyle: "rectRot", ...pt },
+      { trend: true, data: line(c.raw_test), borderColor: raw, borderDash: [6, 4], borderWidth: 2, pointRadius: 0 },
+      { trend: true, data: line(c.adj_test), borderColor: adj, borderDash: [6, 4], borderWidth: 2, pointRadius: 0 },
+    ] } });
+
+    const oB = axes("ONI (°C)");
+    oB.interaction = { mode: "nearest", intersect: false, axis: "x" };
+    oB.scales.x.min = y0 - 0.5; oB.scales.x.max = y1 + 0.5;
+    oB.plugins.tooltip.callbacks = { title: (it) => String(it[0].parsed.x),
+      label: (it) => ` ONI ${signed(it.parsed.y, 2)} °C, ${it.parsed.y >= 0.5 ? "El Niño" : it.parsed.y <= -0.5 ? "La Niña" : "neutral"}` };
+    charts.b = new Chart(document.getElementById("cB"), { type: "bar", options: oB, data: { datasets: [{
+      data: c.years.map((y, i) => ({ x: y, y: c.enso[i] })), backgroundColor: c.enso.map((v) => v >= 0 ? css("--nino") : css("--nina")),
+      barPercentage: 0.8, categoryPercentage: 1 }] } });
+
+    const oC = axes(meta.unit + " per decade");
+    oC.interaction = { mode: "nearest", intersect: false, axis: "x" };
+    if (c.windows.length) { oC.scales.x.min = c.windows[0].start - 0.5; oC.scales.x.max = c.windows[c.windows.length - 1].start + 0.5; }
+    oC.plugins.tooltip.callbacks = { title: (it) => "Starting in " + it[0].parsed.x,
+      label: (it) => { const w = c.windows[it.dataIndex]; return ` ${signed(w.slope10, d)} ${meta.unit} per decade, ${pEq(w.p)}`; } };
+    charts.c = new Chart(document.getElementById("cC"), { type: "bar", options: oC, data: { datasets: [{
+      data: c.windows.map((w) => ({ x: w.start, y: w.slope10 })), backgroundColor: c.windows.map((w) => w.p < ALPHA ? adj : "transparent"),
+      borderColor: c.windows.map((w) => w.p < ALPHA ? adj : css("--ink-3")), borderWidth: c.windows.map((w) => w.p < ALPHA ? 0 : 1.5), borderDash: [3, 2],
+      barPercentage: 0.8, categoryPercentage: 1 }] } });
+  }
+
+  function go(site, v) {
+    state.site = site; state.v = v;
+    history.replaceState(null, "", "#" + site + "|" + v);
+    renderWall(); renderCase();
+  }
+
+  const start = () => go(state.site, state.v);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+})();
+</script>
+</body>
+</html>
