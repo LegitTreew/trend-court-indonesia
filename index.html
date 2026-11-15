@@ -53,7 +53,8 @@
   --font: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "Geist Mono", ui-monospace, Menlo, Consolas, monospace;
   --display: "Archivo", "Arial Narrow", sans-serif;
-  --map-filter: grayscale(1) contrast(.92) brightness(1.04);
+  --land: #e3e8ef;
+  --sea: #f7f9fc;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -82,8 +83,8 @@
     --stamp-ACQUITTED: #38bdf8;
     --stamp-NOCASE: #94a3b8;
     --stamp-blend: normal;
-  --map-filter: invert(1) hue-rotate(180deg) grayscale(1) brightness(.9) contrast(.9);
-    --map-filter: invert(1) hue-rotate(180deg) grayscale(1) brightness(.9) contrast(.9);
+    --land: #22314d;
+    --sea: #0b1220;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px -12px rgba(0, 0, 0, .6);
     --shadow-lg: 0 2px 6px rgba(0, 0, 0, .3), 0 30px 60px -20px rgba(0, 0, 0, .7);
@@ -116,7 +117,8 @@
   --stamp-ACQUITTED: #38bdf8;
   --stamp-NOCASE: #94a3b8;
   --stamp-blend: normal;
-  --map-filter: invert(1) hue-rotate(180deg) grayscale(1) brightness(.9) contrast(.9);
+  --land: #22314d;
+  --sea: #0b1220;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
   --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px -12px rgba(0, 0, 0, .6);
   --shadow-lg: 0 2px 6px rgba(0, 0, 0, .3), 0 30px 60px -20px rgba(0, 0, 0, .7);
@@ -184,16 +186,17 @@ button { font-family: inherit; }
 /* =========================================================
    Hero
    ========================================================= */
-.hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 64px 0 40px; }
+.hero { display: flex; justify-content: center; text-align: center; padding: 72px 0 36px; }
+.hero-main { max-width: 820px; display: flex; flex-direction: column; align-items: center; }
 .badge { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 6px; border-radius: 999px; font-size: 13px; color: var(--text-2);
   background: var(--glass); border: 1px solid var(--border); box-shadow: var(--shadow-sm); backdrop-filter: blur(8px); }
 .badge b { font-weight: 600; color: #fff; background: linear-gradient(135deg, #2563eb, #0ea5e9); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; letter-spacing: .02em; }
 .hero h1 { margin: 20px 0 0; font-size: clamp(40px, 5.6vw, 76px); line-height: .98; letter-spacing: -.035em; font-weight: 700; }
 .hero h1 .grad { background: linear-gradient(100deg, #e11d48 0%, #f97316 40%, #0ea5e9 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hero .sub { margin: 20px 0 0; max-width: 36em; font-size: 18px; line-height: 1.55; color: var(--text-2); }
+.hero .sub { margin: 20px 0 0; max-width: 32em; font-size: 18px; line-height: 1.55; color: var(--text-2); }
 .hero .sub b { color: var(--text); font-weight: 600; }
 
-.ask { margin-top: 30px; max-width: 620px; }
+.ask { margin-top: 30px; width: 100%; max-width: 640px; text-align: left; }
 .ask form { position: relative; display: flex; align-items: center; gap: 8px; padding: 7px 7px 7px 16px; border-radius: 16px;
   background: var(--surface); border: 1px solid var(--border-2); box-shadow: var(--shadow-lg), var(--hi); transition: border-color .2s, box-shadow .2s; }
 .ask form:focus-within { border-color: var(--accent); box-shadow: var(--shadow-lg), 0 0 0 4px var(--accent-soft); }
@@ -206,11 +209,11 @@ button { font-family: inherit; }
   background: linear-gradient(180deg, #3b82f6, #1d4ed8); box-shadow: 0 8px 18px -8px rgba(37, 99, 235, .8), inset 0 1px 0 rgba(255,255,255,.25); transition: filter .15s, transform .15s; }
 .ask button[type=submit]:hover { filter: brightness(1.08); }
 .ask button[type=submit]:active { transform: translateY(1px); }
-.tries { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tries { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
 .tries button { min-height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer; font: 400 13.5px var(--font); color: var(--text-2);
   background: var(--glass); border: 1px solid var(--border); backdrop-filter: blur(8px); transition: border-color .15s, color .15s, transform .15s; }
 .tries button:hover { border-color: var(--border-2); color: var(--text); transform: translateY(-1px); }
-.ask .out { min-height: 24px; margin-top: 10px; font-size: 14px; color: var(--text-2); }
+.ask .out { min-height: 24px; margin-top: 12px; font-size: 14px; color: var(--text-2); text-align: center; }
 .ask .out b { color: var(--text); }
 
 /* summary card */
@@ -224,7 +227,8 @@ button { font-family: inherit; }
 .sum-note { margin: 0; color: var(--text-3); font-size: 13.5px; }
 .stack { display: flex; height: 12px; border-radius: 999px; overflow: hidden; margin: 18px 0 18px; gap: 2px; background: var(--surface-3); }
 .stack span { display: block; height: 100%; width: 0; transition: width 1s cubic-bezier(.2, .7, .2, 1); }
-.sum-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sum-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 36px; align-items: center; position: relative; }
+.sum-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .sum-list li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
 .sum-list .lbl { font-size: 13.5px; font-weight: 550; line-height: 1.2; }
 .sum-list .lbl small { display: block; font-weight: 400; color: var(--text-3); font-size: 12px; }
@@ -236,6 +240,31 @@ button { font-family: inherit; }
 .d-NOCASE { background: var(--none); }
 .feature { margin-top: 16px; width: 100%; justify-content: space-between; min-height: 48px; border-radius: 12px; }
 .feature span { color: var(--text-3); font-weight: 400; }
+.summary { padding: 26px 28px; }
+.sum-big .of { line-height: 1.3; }
+
+/* how it works */
+#how .sec-head p b { color: var(--text); font-weight: 600; }
+.how-charges { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.how-charges .chip { height: 30px; font-size: 13px; background: var(--surface); }
+.how { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; counter-reset: none; }
+.hstep { position: relative; padding: 20px; display: flex; flex-direction: column; }
+.hstep h5 { margin: 14px 0 6px; font-size: 16px; line-height: 1.3; font-weight: 650; color: var(--text); }
+.hstep p { margin: 0 0 14px; font-size: 14px; color: var(--text-2); line-height: 1.5; flex: 1; }
+.hnum { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font: 600 14px var(--mono); color: var(--accent);
+  background: var(--accent-soft); border: 1px solid var(--border); }
+.hfinal .hnum { color: #fff; background: linear-gradient(160deg, #f43f5e, #be123c); border-color: transparent; }
+.hout { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-3); padding-top: 12px; border-top: 1px dashed var(--border-2); }
+.hout b { color: var(--text); font-weight: 600; }
+.hstep:not(:last-child)::after { content: ""; position: absolute; top: 34px; right: -12px; width: 10px; height: 2px; background: var(--border-2); }
+@media (max-width: 1060px) { .hstep::after { display: none; } }
+
+/* extra check row in the case file */
+.alibis li.extra .ic { border-style: dashed; }
+.alibis li.extra .claim { font-weight: 500; color: var(--text-2); }
+.res.info { color: var(--text-2); background: transparent; border: 1px dashed var(--border-2); }
+.res.skip { color: var(--text-3); background: transparent; border: 1px dashed var(--border-2); }
+.ev .note { margin: 8px 0 0; font-size: 12.5px; color: var(--text-3); }
 
 /* =========================================================
    Section headings
@@ -350,7 +379,8 @@ table.docket { border-collapse: separate; border-spacing: 5px; width: 100%; min-
 
 .mapcard { margin-top: 22px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: var(--surface-2); position: relative; }
 #map { height: 230px; background: var(--surface-3); }
-#map .leaflet-tile-pane { filter: var(--map-filter); }
+#map.leaflet-container { background: var(--sea); }
+#map .land { fill: var(--land); stroke: var(--border-2); stroke-width: .6; }
 .mapcard .cap { position: absolute; left: 10px; top: 10px; z-index: 500; display: flex; gap: 6px; }
 .mapcard .cap .chip { background: var(--glass); backdrop-filter: blur(10px); box-shadow: var(--shadow-sm); }
 .leaflet-container { font-family: var(--font); }
@@ -415,7 +445,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 .empty p { margin: 0 auto; color: var(--text-2); max-width: 34em; }
 
 @media (max-width: 1060px) {
-  .hero { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-top: 44px; }
+  .hero { padding-top: 44px; }
+  .how { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .sum-grid { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .sum-list { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .case { grid-template-columns: minmax(0, 1fr); }
   .sec-head > * { min-width: 0; max-width: 100%; }
   .seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
@@ -430,7 +463,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   .metrics { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .case-actions .btn span { display: none; }
   .case-actions .btn { width: 40px; padding: 0; }
-  .sum-list { grid-template-columns: 1fr; }
+  .sum-list { grid-template-columns: minmax(0, 1fr); }
+  .how { grid-template-columns: minmax(0, 1fr); }
+  .hero .sub { font-size: 16.5px; }
   .ask .kbd, .brand small, .nav .period { display: none; }
   .ask button[type=submit] { padding: 0 14px; }
   .stamp { font-size: 28px; }
@@ -459,11 +494,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 <div class="wrap" id="top">
   <section class="hero">
-    <div>
+    <div class="hero-main">
       <span class="badge"><b>NASA Space Apps 2026</b>Be An Earth System Trend Detective</span>
       <h1>Is Indonesia changing, or is it <span class="grad">just El Niño?</span></h1>
-      <p class="sub">Every trend in 45 years of NASA data goes on trial: <b>6 charges in 14 cities</b>, from Banda Aceh to Jayapura.
-        A trend is convicted only if it survives three alibis.</p>
+      <p class="sub">Type a city and a worry. We check 45 years of NASA data and tell you if the change is real.</p>
       <div class="ask">
         <label for="askIn" class="sr">Ask the court</label>
         <form id="askForm" role="search">
@@ -481,7 +515,46 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="out" id="askOut" aria-live="polite"></div>
       </div>
     </div>
-    <aside class="card summary" id="summary" aria-label="Verdict tally"></aside>
+  </section>
+
+  <section class="sec" id="how" aria-labelledby="howTitle">
+    <div class="sec-head"><div>
+      <span class="eyebrow">How it works</span>
+      <h2 id="howTitle">Every trend goes on trial</h2>
+      <p>We look at <b id="howCharges">6 kinds of change</b> (the "charges") in <b id="howCities">14 cities</b>, from Banda Aceh to Jayapura.
+        A change only counts as real if it beats three common excuses (the "alibis").</p>
+    </div></div>
+    <div class="how-charges" id="chargeList" aria-label="The charges"></div>
+    <ol class="how">
+      <li class="card hstep">
+        <span class="hnum">1</span>
+        <h5>"It's just random ups and downs."</h5>
+        <p>Weather jumps around every year. We test whether the change is bigger than that normal wobble.</p>
+        <span class="hout">Fails → <i class="dot d-NOCASE"></i><b>No case</b></span>
+      </li>
+      <li class="card hstep">
+        <span class="hnum">2</span>
+        <h5>"El Niño did it."</h5>
+        <p>El Niño years are drier and hotter in most of Indonesia. We subtract El Niño's effect and test again.</p>
+        <span class="hout">Fails → <i class="dot d-ACQUITTED"></i><b>Acquitted</b></span>
+      </li>
+      <li class="card hstep">
+        <span class="hnum">3</span>
+        <h5>"You picked a convenient start year."</h5>
+        <p>A trend can appear just by choosing where the graph begins. We try every start year; a real trend shows up in most of them.</p>
+        <span class="hout">Fails → <i class="dot d-NOTPROVEN"></i><b>Not proven</b></span>
+      </li>
+      <li class="card hstep hfinal">
+        <span class="hnum">✓</span>
+        <h5>Beats all three</h5>
+        <p>The change is real and not explained by El Niño. It doesn't say <i>what</i> caused it, only that it's there.</p>
+        <span class="hout"><i class="dot d-GUILTY"></i><b>Guilty</b></span>
+      </li>
+    </ol>
+  </section>
+
+  <section class="sec" aria-label="Verdict tally">
+    <div class="card summary" id="summary"></div>
   </section>
 
   <main id="app"></main>
@@ -523,6 +596,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 <script src="vendor/chart.umd.min.js"></script>
 <script src="vendor/leaflet.js"></script>
+<script src="vendor/indonesia-geo.js"></script>
 <script src="data.js"></script>
 <script>
 (function () {
@@ -645,17 +719,20 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   if (D.generated) $("generated").textContent = "Results generated " + D.generated.replace("T", " ");
   $("sources").innerHTML = D.sources.map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></li>`).join("");
 
-  $("summary").innerHTML = `
-    <div class="sum-head"><span class="eyebrow">Verdict tally</span><span class="chip mono">${nCases} trials</span></div>
-    <div class="sum-big"><span class="num" id="bigNum">${count("GUILTY")}</span><span class="of">of ${nCases} trends<br>convicted</span></div>
-    <p class="sum-note">Across ${D.sites.length} cities and ${VAR_KEYS.length} charges, ${D.period[0]}–${D.period[1]}.</p>
+  $("summary").innerHTML = `<div class="sum-grid"><div>
+    <div class="sum-head"><span class="eyebrow">The results</span><span class="chip mono">${nCases} trials</span></div>
+    <div class="sum-big"><span class="num" id="bigNum">${count("GUILTY")}</span><span class="of">of ${nCases} trends are real</span></div>
+    <p class="sum-note">${D.sites.length} cities × ${VAR_KEYS.length} charges, NASA data ${D.period[0]}–${D.period[1]}.</p></div><div>
     <div class="stack" role="img" aria-label="${ORDER.map((k) => `${count(k)} ${VERDICT[k].label.toLowerCase()}`).join(", ")}">
       ${ORDER.map((k) => `<span class="d-${VERDICT[k].cls}" data-w="${(count(k) / nCases * 100).toFixed(2)}"></span>`).join("")}
     </div>
     <ul class="sum-list">
       ${ORDER.map((k) => `<li><i class="dot d-${VERDICT[k].cls}"></i><span class="lbl">${VERDICT[k].label}<small>${VERDICT[k].desc}</small></span><span class="n">${count(k)}</span></li>`).join("")}
     </ul>
-    <button class="btn feature" type="button" id="featBtn">Open the featured case <span>${esc(siteById[FEAT.site].name)} · ${esc(D.vars[FEAT.v].short || D.vars[FEAT.v].name)} →</span></button>`;
+    <button class="btn feature" type="button" id="featBtn">Open the featured case <span>${esc(siteById[FEAT.site].name)} · ${esc(D.vars[FEAT.v].short || D.vars[FEAT.v].name)} →</span></button></div></div>`;
+  $("howCharges").textContent = `${VAR_KEYS.length} kinds of change`;
+  $("howCities").textContent = `${D.sites.length} cities`;
+  $("chargeList").innerHTML = VAR_KEYS.map((v) => `<span class="chip">${esc(D.vars[v].name)}</span>`).join("");
   $("featBtn").addEventListener("click", () => { go(FEAT.site, FEAT.v); scrollToCase(); });
   requestAnimationFrame(() => setTimeout(() => document.querySelectorAll(".stack span").forEach((s) => { s.style.width = s.dataset.w + "%"; }), 120));
   (function countUp() {
@@ -672,8 +749,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="sec-head">
         <div>
           <span class="eyebrow">The docket</span>
-          <h2 id="wallTitle">${count("GUILTY")} of ${nCases} trends convicted</h2>
-          <p>${count("ACQUITTED")} acquitted because El Niño explains them, ${count("NOT PROVEN")} not proven, ${count("NO CASE")} with no real trend. Pick any tile to open its case. ★ marks a trend El Niño was hiding.</p>
+          <h2 id="wallTitle">Every trial, city by city</h2>
+          <p>Each tile is one trial: a row is a charge, a column is a city. Tap a tile to see the evidence. ★ marks a trend El Niño was hiding: flat in the raw data, clear once El Niño is removed.</p>
         </div>
         <div class="seg" role="group" aria-label="Highlight verdict" id="seg">
           <button type="button" data-f="ALL" aria-pressed="true">All</button>
@@ -685,7 +762,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="wall-foot"><span>Cities run west to east. Numbers are the change per decade, with El Niño removed. Faint lines show each record.</span><span>NASA POWER, ${D.period[0]}–${D.period[1]}</span></div>
       </div>
     </section>
-    <article class="card case" id="case" aria-live="polite"></article>`;
+    <article class="card case" id="case" aria-label="Case file"></article>`;
 
   $("seg").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b) return;
@@ -788,6 +865,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       return;
     }
     if (v === "onset" && site && !caseOf(site, v)) v = "rain_dry";
+    if (!v && site) {
+      const rank = { "GUILTY": 0, "ACQUITTED": 1, "NOT PROVEN": 2, "NO CASE": 3 };
+      v = VAR_KEYS.filter((k) => caseOf(site, k)).sort((x, y) => (rank[caseOf(site, x).verdict] - rank[caseOf(site, y).verdict]) || (caseOf(site, x).adj_test.p - caseOf(site, y).adj_test.p))[0];
+    }
     if (!v) v = state.v;
     if (!site) {
       const order = { "GUILTY": 0, "ACQUITTED": 1, "NOT PROVEN": 2, "NO CASE": 3 };
@@ -834,6 +915,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     const m = VERDICT[c.verdict], r = c.raw_test, a = c.adj_test;
     const win = c.windows, ensoShare = Math.round(c.enso_r * c.enso_r * 100);
     const fdrOk = c.q != null && c.q < ALPHA;
+    const rawSig = r.p < ALPHA, adjSig = a.p < ALPHA;
+    const noiseBroken = rawSig || adjSig;
     const nb = neighbours();
     const step = (ok, i) => `<span class="ic ${ok ? "broken" : "holds"}" aria-hidden="true">${ok ? I.x : I.check}</span>`;
     const res = (ok) => ok ? `<span class="res broken">Alibi broken</span>` : `<span class="res holds">Alibi holds</span>`;
@@ -863,15 +946,15 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <p class="ruling">${esc(c.text)}</p>
         ${c.unmasked ? `<div class="hidden-note">${I.star}<span><b>${c.verdict === "GUILTY" ? "Hidden trend" : "Possible hidden trend"}:</b> flat in the raw data, it shows up once El Niño is removed.</span></div>` : ""}
         <ol class="alibis">
-          <li>${step(r.p < ALPHA)}<div><div class="head"><span class="claim">"It's just random ups and downs."</span>${res(r.p < ALPHA)}</div>
-            <div class="why">Raw record: ${signed(r.slope * 10, d)} ${esc(meta.unit)} per decade, ${pEq(r.p)} after correcting for year-to-year memory (uncorrected: ${pEq(r.p_plain)}).</div></div></li>
+          <li>${step(noiseBroken)}<div><div class="head"><span class="claim">"It's just random ups and downs."</span>${res(noiseBroken)}</div>
+            <div class="why">Raw record: ${signed(r.slope * 10, d)} ${esc(meta.unit)} per decade, ${pEq(r.p)} after correcting for year-to-year memory (uncorrected: ${pEq(r.p_plain)}).${!rawSig && adjSig ? ` That looks like noise, but El Niño was masking the trend: with El Niño removed it is clear (${pEq(a.p)}).` : ""}</div></div></li>
           <li>${step(a.p < ALPHA)}<div><div class="head"><span class="claim">"El Niño did it."</span>${res(a.p < ALPHA)}</div>
             <div class="why">El Niño and La Niña explain ${ensoShare}% of the year-to-year swings (${esc(c.enso_label)}). With them removed: ${signed(a.slope * 10, d)} ${esc(meta.unit)} per decade, ${pEq(a.p)}.</div></div></li>
-          <li>${step(c.robust)}<div><div class="head"><span class="claim">"You picked a convenient start year."</span>${res(c.robust)}</div>
-            <div class="why">Tried ${win.length} start years${win.length ? ` (${win[0].start}–${win[win.length - 1].start})` : ""}. The trend ${c.same_sign ? "always points the same way" : "changes direction"} and is significant for ${Math.round(c.sig_share * 100)}% of them. The court needs ${Math.round(D.settings.robust_share * 100)}%.</div></div></li>
-          <li>${step(fdrOk)}<div><div class="head"><span class="claim">"With ${nCases} trials, some hits are luck."</span>
-            <span class="res ${fdrOk ? "broken" : "holds"}">${fdrOk ? "Still significant" : "Could be luck"}</span></div>
-            <div class="why">False discovery rate across all trials: ${c.q != null ? (c.q < 0.001 ? "q < 0.001" : "q = " + c.q.toFixed(3)) : "–"}.</div></div></li>
+          <li>${step(adjSig && c.robust)}<div><div class="head"><span class="claim">"You picked a convenient start year."</span>${adjSig ? res(c.robust) : `<span class="res skip">Not needed</span>`}</div>
+            <div class="why">${adjSig ? "" : "No trend survived the first two alibis, so this doesn't change the verdict. For reference: "}Tried ${win.length} start years${win.length ? ` (${win[0].start}–${win[win.length - 1].start})` : ""}. The trend ${c.same_sign ? "always points the same way" : "changes direction"} and is significant for ${Math.round(c.sig_share * 100)}% of them. The court needs ${Math.round(D.settings.robust_share * 100)}%.</div></div></li>
+          <li class="extra"><span class="ic holds" aria-hidden="true">${I.check}</span><div><div class="head"><span class="claim">Extra check: with ${nCases} trials, could this be luck?</span>
+            <span class="res info">${fdrOk ? "Unlikely to be luck" : "Could be luck"}</span></div>
+            <div class="why">Testing ${nCases} trends at once means a few look real by chance. After correcting for that (false discovery rate), ${c.q != null ? (c.q < 0.001 ? "q < 0.001" : "q = " + c.q.toFixed(3)) : "q = –"}${fdrOk ? ", still below 0.05." : ", above 0.05."} This is shown for honesty and doesn't change the verdict.</div></div></li>
         </ol>
         <div class="mapcard">
           <div class="cap"><span class="chip">${esc(s.name)} · ${s.lat}°, ${s.lon}°</span></div>
@@ -889,6 +972,7 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
             <span><i class="sw dash"></i>Trend</span>
           </div>
           <div class="cv"><canvas id="cA" role="img" aria-label="${esc(meta.name)} by year, raw and with El Niño removed"></canvas></div>
+          ${meta.unit === "days" && state.v !== "onset" && Math.min(...c.adj.filter((x) => x != null)) < 0 ? `<p class="note">Why below zero? The orange line subtracts El Niño's usual effect from each year. In a La Niña year that can push a small count under zero. It's for comparing trends, not a real count of days.</p>` : ""}
         </section>
         <section class="ev">
           <div class="ev-head"><div><span class="ev-tag">Exhibit B</span><h4>The suspect</h4></div></div>
@@ -943,7 +1027,8 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     if (!window.L || !$("map")) return;
     map = L.map("map", { zoomControl: false, attributionControl: true, dragging: false, scrollWheelZoom: false,
       doubleClickZoom: false, boxZoom: false, keyboard: false, touchZoom: false, zoomSnap: 0.25 });
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap", maxZoom: 19 }).addTo(map);
+    if (window.ID_GEO) L.geoJSON(window.ID_GEO, { interactive: false, style: () => ({ className: "land", fillOpacity: 1, opacity: 1, weight: 0.6 }) }).addTo(map);
+    map.attributionControl.setPrefix(false).addAttribution("Natural Earth");
     map.fitBounds([[-11, 95], [6, 141]], { padding: [6, 6] });
     for (const o of D.sites) {
       const c = caseOf(o.id, state.v), on = o.id === s.id, sz = on ? 18 : 11;
@@ -1023,6 +1108,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     renderWall(); renderCase();
   }
 
+  addEventListener("hashchange", () => {
+    const h = decodeURIComponent(location.hash.slice(1)).split("|");
+    if (h.length === 2 && caseOf(h[0], h[1]) && (h[0] !== state.site || h[1] !== state.v)) { go(h[0], h[1]); scrollToCase(); }
+  });
   const start = () => {
     if (window.Chart) Chart.defaults.font.family = "Geist, system-ui, sans-serif";
     go(state.site, state.v);
