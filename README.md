@@ -47,3 +47,7 @@ Then open `index.html` in a browser. No server is needed. The map tiles need int
 ## Files
 - `trend_court.py`: download, indicators, statistics, verdicts → `data.js` / `data.json`
 - `index.html`: the app (Chart.js and Leaflet are included in `vendor/`)
+
+
+## AI Assistance Disclosure
+Our team used ChatGPT and Claude as AI assistance tools for research and information gathering, coding, debugging, data analysis support, and writing/editing. All AI-assisted outputs were reviewed by the team, and the team takes responsibility for the final project, implementation, and submitted content.
